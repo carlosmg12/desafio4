@@ -28,7 +28,7 @@ print(X_train)
 print(Y_train)
 
 #Se define la red neuronal con 320 neuronas en la capa de entrada
-#3 capas ocultas de 160,80,30 neuronas respectivamente 
+#4 capas ocultas de 320,160,80,30 neuronas respectivamente 
 #10 neuronas de capa de salida
 #Se usa relu como funcion de activacion en todas las capas menos en la capa de salida que se usa un softmax
 modelo = Sequential()

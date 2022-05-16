@@ -7,33 +7,40 @@ from sklearn.metrics import mean_absolute_error,accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 
+#Se carga el dataset
+
 dataset = 'https://raw.githubusercontent.com/OptativoPUCV/Fashion-DataSet/master/fashion-1.csv'
 df = pd.read_csv(dataset)
 df.head()
 p=784
 
+#Clasificacion de las diferentes tipos de ropas
 X = df.drop(columns=['label'])
 X = (X-X.mean())/X.std()
 X = X.to_numpy()
+#Se agrega la columna labels a una lista
 Y = df['label'].tolist()
 Y2 = np.array(Y)
 Y = Y2[:, np.newaxis]
 
+#Funcion de activacion sigmoide, y su derivada
 def activation(x):
   return ((1/(1+np.e**(-x))) , (x * (1-x)))
 
+#Constructor de la capa
 class Capa():
   def __init__(self, n_conexiones: int, n_neuronas: int, activation):
     self.activation = activation
     self.W = np.random.rand(n_conexiones, n_neuronas) * 2 - 1
 
+#Creacion de la red, recibe una lista de tipo topologia y una funcion de activacion
 def crear_red(topologia: list, activation):
   red = []
   #for i in range(len(topologia) - 1):
   for l, capa in enumerate(topologia[:-1]):
     red.append( Capa(topologia[l], topologia[l+1], activation) )
   return red
-
+#Se calcula las sumas ponderadas, se pasa el valor por la funcion de activacion
 def forward(red, X):
   out = [(None, X)]
   for l, capa in enumerate(red):
@@ -42,9 +49,11 @@ def forward(red, X):
     out.append((z, a)) # Guardamos todas las combinaciones para poder usar la misma función en el backpropagation
   return out
 
+#Calcula la fuincion de coste de la neurona
 def coste(Ypred, Yesp):
   return (np.mean((Ypred - Yesp) ** 2), (Ypred - Yesp))
 
+#Define el entrenamiento de los datos
 def train(red, X, Y, coste, learning_rate=0.001):
   # forward 
   out = forward(red, X)
@@ -67,11 +76,13 @@ def train(red, X, Y, coste, learning_rate=0.001):
 
   return out[-1][1]
 
+#Se define topologia que correponde a la cantidad de neuronas por capa, con p cantidad de neuronas de la primera capa
 topologia = [p, 320, 80, 30, 1]
 red = crear_red(topologia, activation)
 loss = []
 X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=2)
+#Se define un ciclo de 100 epocas para entrenar a las neuronas
 for i in range(100):
   pY = train(red, X_train, Y_train, coste, learning_rate=0.05)
   if i % 25 == 0:
